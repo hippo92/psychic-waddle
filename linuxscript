@@ -1,0 +1,133 @@
+#!/bin/bash
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
+##beginning of the script
+echo "Are you sure you want to run this? Do you have everything download, and are the essential processes updated and checked? Have you answered the forensic questions? [y/n]"
+	read ans
+	if [ $ans -ne 'y' ] 
+	then
+		exit
+	fi #beginning so you don't mess up
+##updates and upgrades
+apt-get update
+apt-get upgrade
+apt-get dist-upgrade
+##libpam and passwords 
+apt-get install libpam-cracklib 
+cp /etc/pam.d/common-password /etc/pam.d/common-password.back
+cp -f securityfiles/goodpam /etc/pam.d/common-password
+cp -f securityfiles/goodlogin.defs /etc/login.defs 
+
+##change root passwords 
+echo "Changing Roots password"
+users=( cut-d: -f1 /etc/passwd )
+for users in "${users[@]}"
+do
+	echo 
+##disables guest accounts
+echo "Please change other users' passwords too" #lightdm.conf
+if [ -e lightdm.conf ] #/etc/lightdm/	#add the previous comment before lightdm.conf 
+then
+	 echo "allow-guest=false" >> lightdm.conf 
+else 
+	 echo -e "[Seat Defaults]
+user-session=ubuntu
+greeter-session=unity-greeter
+allow-guest=false" > lightdm.conf
+fi	
+##badprocesses, eliminates standards
+badprocesses=( "SNMP" "MYSQL" "PostgrSQL" "Oracle" "OpenLDAP" "PHP" "Apache" "Squid" "Telnet" "inetd" "Bind" "VNC" "Bind9" "Apache2" )
+for badp in "${badprocesses[@]}"
+do
+	if ps -A | grep -q $badp; 
+	then 
+		echo "Found $badp would you like to delete? [y/n]" 
+		read ans 
+		if [ $ans = 'y' ]
+		then 
+			service $badp stop -y 
+			 apt-get --purge remove $badp -y 
+		fi
+	fi
+done
+
+	echo "Do you want to install Audit Policies (in the checklist)[y/n]"
+	read ans
+	if [ $ans -ne 'y' ] 
+	then
+		exit
+	fi 
+##audit policies
+ apt-get install auditd	
+ auditctl -e 1	#enable audit policies	
+echo "modify them according them to the readme"
+##boot up manager
+echo "Use the 'how to disable a service' step in the checklist and disable services using bum"
+ apt-get install bum
+##disables SSH Root login through sed 
+echo "Do you want to disable SSH root login? [y/n]" #disables SSH root login
+read ans
+if [[ "$ans" = 'y']]; then
+     sed -i 'PermitRootLogin yes/c\PermitRootLogin no' /etc/ssh/sshd_config
+fi
+##firewall status
+apt-get install ufw  #checks to see if firewall is active and installs
+firewallstatus= $(ufw status)
+if [[ "$firewallstatus" != "Status: active"]];
+    ufw enable
+fi
+###allow ssh thing
+echo "Do you want to allow SSH [y/n]"
+if [[ "$ans" = 'y' ]]; then
+    ufw allow ssh
+fi
+##deletes mp3 files
+mp3_arr=$(find /root/ -name "*.mp3")
+printf '%s|' "${mp4_arr[@]}"; echo
+    echo "Would you like to delete these files, have you answered the forensics questions? Are any of these needed? [y/n]"
+    read ans
+    if [[ "$ans" -ne 'y']]; then
+        for files in "${mp3_arr[@]}"; do 
+        rm -f "$files"
+    done
+##dlete mp4 files 
+mp4_arr=$(find /root/ -name "*.mp4") 
+printf '%s|' "${mp4_arr[@]}"; echo 
+    echo "Would you like to delete these files, have you answered the forensics questions? Are any of these needed? [y/n]"
+    read ans
+    if [[ "$ans" -ne 'y']]; then
+        for files in "${mp4_arr[@]}"; do 
+        rm -f "$files"
+    done
+
+usermod -L root ##disables the ability for users to log in as root
+
+apt-get install clamav clamtk ##installs anti-virus program
+
+clamscan -i -r /home ##starts scanning for virus
+
+echo "AUTOMATION COMPLETE: DO GROUPS, SOFTWARE THROUGH GUI, GECKOS FIELD, BOOT-UP MANAGER, USERS, PACKAGES, PORTS, CRONJOBS,,,,,,, JUST DOUBLE CHECK YOURSELF"
+
+
+        
+
+
+
+    
+    
+    
+    
+    
+    
+
+
+
+
+
+
+
+
+
+ 
