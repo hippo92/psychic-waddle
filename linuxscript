@@ -20,12 +20,6 @@ cp /etc/pam.d/common-password /etc/pam.d/common-password.back
 cp -f securityfiles/goodpam /etc/pam.d/common-password
 cp -f securityfiles/goodlogin.defs /etc/login.defs 
 
-##change root passwords 
-echo "Changing Roots password"
-users=( cut-d: -f1 /etc/passwd )
-for users in "${users[@]}"
-do
-	echo 
 ##disables guest accounts
 echo "Please change other users' passwords too" #lightdm.conf
 if [ -e lightdm.conf ] #/etc/lightdm/	#add the previous comment before lightdm.conf 
@@ -84,7 +78,7 @@ if [ "$ans" = 'y' ]; then
     ufw allow ssh
 fi
 ##deletes mp3 files
-mp3_arr=$(find /root/ -name "*.mp3")
+mp3_arr=$(find / -name "*.mp3")
 printf '%s|' "${mp4_arr[@]}"; echo
     echo "Would you like to delete these files, have you answered the forensics questions? Are any of these needed? [y/n]"
     read ans
@@ -93,7 +87,7 @@ printf '%s|' "${mp4_arr[@]}"; echo
         rm -f "$files"
     done
 ##delete mp4 files 
-mp4_arr=$(find /root/ -name "*.mp4") 
+mp4_arr=$(find / -name "*.mp4") 
 printf '%s|' "${mp4_arr[@]}"; echo 
     echo "Would you like to delete these files, have you answered the forensics questions? Are any of these needed? [y/n]"
     read ans
@@ -102,12 +96,12 @@ printf '%s|' "${mp4_arr[@]}"; echo
         rm -f "$files"
     done
 ##delete WAV files
-mp4_arr=$(find /root/ -name "*.mp4") 
-printf '%s|' "${mp4_arr[@]}"; echo 
+wav_arr=$(find / -name "*.wav") 
+printf '%s|' "${wav_arr[@]}"; echo 
     echo "Would you like to delete these files, have you answered the forensics questions? Are any of these needed? [y/n]"
     read ans
     if [ "$ans" -ne 'y']; then
-        for files in "${mp4_arr[@]}"; do 
+        for files in "${wav_arr[@]}"; do 
         rm -f "$files"
     done
 ###usermod
@@ -118,25 +112,5 @@ apt-get install clamav clamtk ##installs anti-virus program
 clamscan -i -r /home ##starts scanning for virus
 
 echo "AUTOMATION COMPLETE: DO GROUPS, SOFTWARE THROUGH GUI, GECKOS FIELD, BOOT-UP MANAGER, USERS, PACKAGES, PORTS, CRONJOBS,,,,,,, JUST DOUBLE CHECK YOURSELF"
+exit
 
-
-        
-
-
-
-    
-    
-    
-    
-    
-    
-
-
-
-
-
-
-
-
-
- 
