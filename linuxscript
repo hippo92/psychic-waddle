@@ -69,18 +69,18 @@ echo "Use the 'how to disable a service' step in the checklist and disable servi
 ##disables SSH Root login through sed 
 echo "Do you want to disable SSH root login? [y/n]" #disables SSH root login
 read ans
-if [[ "$ans" = 'y']]; then
+if [ "$ans" = 'y']; then
      sed -i 'PermitRootLogin yes/c\PermitRootLogin no' /etc/ssh/sshd_config
 fi
 ##firewall status
 apt-get install ufw  #checks to see if firewall is active and installs
 firewallstatus= $(ufw status)
-if [[ "$firewallstatus" != "Status: active"]];
+if [ "$firewallstatus" != "Status: active"]; then
     ufw enable
 fi
 ###allow ssh thing
 echo "Do you want to allow SSH [y/n]"
-if [[ "$ans" = 'y' ]]; then
+if [ "$ans" = 'y' ]; then
     ufw allow ssh
 fi
 ##deletes mp3 files
@@ -88,20 +88,29 @@ mp3_arr=$(find /root/ -name "*.mp3")
 printf '%s|' "${mp4_arr[@]}"; echo
     echo "Would you like to delete these files, have you answered the forensics questions? Are any of these needed? [y/n]"
     read ans
-    if [[ "$ans" -ne 'y']]; then
+    if [ "$ans" -ne 'y']; then
         for files in "${mp3_arr[@]}"; do 
         rm -f "$files"
     done
-##dlete mp4 files 
+##delete mp4 files 
 mp4_arr=$(find /root/ -name "*.mp4") 
 printf '%s|' "${mp4_arr[@]}"; echo 
     echo "Would you like to delete these files, have you answered the forensics questions? Are any of these needed? [y/n]"
     read ans
-    if [[ "$ans" -ne 'y']]; then
+    if [ "$ans" -ne 'y']; then
         for files in "${mp4_arr[@]}"; do 
         rm -f "$files"
     done
-
+##delete WAV files
+mp4_arr=$(find /root/ -name "*.mp4") 
+printf '%s|' "${mp4_arr[@]}"; echo 
+    echo "Would you like to delete these files, have you answered the forensics questions? Are any of these needed? [y/n]"
+    read ans
+    if [ "$ans" -ne 'y']; then
+        for files in "${mp4_arr[@]}"; do 
+        rm -f "$files"
+    done
+###usermod
 usermod -L root ##disables the ability for users to log in as root
 
 apt-get install clamav clamtk ##installs anti-virus program
